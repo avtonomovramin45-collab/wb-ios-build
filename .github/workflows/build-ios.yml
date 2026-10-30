@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -38,3 +38,14 @@ jobs:
           name: whitelist-bypass-proxy-v0.4.4-tcpturn
           path: prebuilts/whitelist-bypass-proxy.ipa
           retention-days: 3
+      - name: publish ipa to branch out
+        run: |
+          set -e
+          SHA=$(shasum -a 256 prebuilts/whitelist-bypass-proxy.ipa | cut -d' ' -f1)
+          mkdir -p /tmp/out && cp prebuilts/whitelist-bypass-proxy.ipa /tmp/out/
+          echo "$SHA  whitelist-bypass-proxy.ipa" > /tmp/out/SHA256SUMS
+          cd /tmp/out
+          git init -q -b out
+          git -c user.name=github-actions -c user.email=actions@github.com add -A
+          git -c user.name=github-actions -c user.email=actions@github.com commit -qm "ipa ${GITHUB_SHA::7} sha256 $SHA"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}" out
