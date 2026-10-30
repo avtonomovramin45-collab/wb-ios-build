@@ -1,0 +1,22 @@
+--- a/internal/ice/gather.go	2026-10-30 16:38:04.858387114 +0000
++++ b/internal/ice/gather.go	2026-10-30 16:50:36.412411098 +0000
+@@ -4,6 +4,7 @@
+ package ice
+ 
+ import (
++	"strings"
+ 	"context"
+ 	"crypto/tls"
+ 	"io"
+@@ -1176,7 +1177,10 @@
+ 					}
+ 
+ 					a.addRelayCandidates(ctx, relayEndpoint{
+-						network:  network,
++						// The relayed address allocated by TURN is always UDP, even when the
++						// client reaches the TURN server over TCP; tagging it tcp4 left it
++						// without candidate pairs against the SFU's UDP candidates.
++						network:  strings.Replace(network, "tcp", "udp", 1),
+ 						address:  rAddr.IP,
+ 						port:     rAddr.Port,
+ 						relAddr:  relAddr,

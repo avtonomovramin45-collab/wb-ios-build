@@ -1,0 +1,18 @@
+diff --git a/relay/pion/headless-joiner-common/telemost_joiner.go b/relay/pion/headless-joiner-common/telemost_joiner.go
+index bd79796..300b0e8 100644
+--- a/relay/pion/headless-joiner-common/telemost_joiner.go
++++ b/relay/pion/headless-joiner-common/telemost_joiner.go
+@@ -428,6 +428,13 @@ func (j *TelemostHeadlessJoiner) initPC() {
+ 			if j.PCConfig != nil {
+ 				j.PCConfig.ConfigureSettingEngine(settingEngine)
+ 			}
++			// TURN over TCP: by default only UDP network types are enabled, so the
++			// "turn:...?transport=tcp" servers Telemost offers are silently dropped and
++			// the joiner cannot connect when UDP to Yandex is blocked. TCP4 here only
++			// enables relay candidates via TURN/TCP (no TCP mux -> no host TCP candidates).
++			settingEngine.SetNetworkTypes([]webrtc.NetworkType{
++				webrtc.NetworkTypeUDP4, webrtc.NetworkTypeUDP6, webrtc.NetworkTypeTCP4,
++			})
+ 		})
+ 	}
+ 

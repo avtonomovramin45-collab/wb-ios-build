@@ -1,0 +1,40 @@
+name: build-ios
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: gomobile
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gobind@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: versions
+        run: |
+          go version; xcodebuild -version; gomobile version || true
+      - name: build unsigned ipa
+        run: |
+          gomobile init
+          bash build-ios.sh proxy
+      - name: checksum
+        run: |
+          ls -la prebuilts/
+          shasum -a 256 prebuilts/whitelist-bypass-proxy.ipa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whitelist-bypass-proxy-v0.4.4-tcpturn
+          path: prebuilts/whitelist-bypass-proxy.ipa
+          retention-days: 3
