@@ -435,6 +435,9 @@ func (j *TelemostHeadlessJoiner) initPC() {
 			settingEngine.SetNetworkTypes([]webrtc.NetworkType{
 				webrtc.NetworkTypeUDP4, webrtc.NetworkTypeUDP6, webrtc.NetworkTypeTCP4,
 			})
+			// TCP4 would also make the agent dial the SFU's passive TCP candidates;
+			// only TURN/TCP is wanted here.
+			settingEngine.DisableActiveTCP(true)
 		})
 	}
 

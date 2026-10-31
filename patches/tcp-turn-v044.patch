@@ -1,8 +1,8 @@
 diff --git a/relay/pion/headless-joiner-common/telemost_joiner.go b/relay/pion/headless-joiner-common/telemost_joiner.go
-index bd79796..300b0e8 100644
+index bd79796..205f6e2 100644
 --- a/relay/pion/headless-joiner-common/telemost_joiner.go
 +++ b/relay/pion/headless-joiner-common/telemost_joiner.go
-@@ -428,6 +428,13 @@ func (j *TelemostHeadlessJoiner) initPC() {
+@@ -428,6 +428,16 @@ func (j *TelemostHeadlessJoiner) initPC() {
  			if j.PCConfig != nil {
  				j.PCConfig.ConfigureSettingEngine(settingEngine)
  			}
@@ -13,6 +13,9 @@ index bd79796..300b0e8 100644
 +			settingEngine.SetNetworkTypes([]webrtc.NetworkType{
 +				webrtc.NetworkTypeUDP4, webrtc.NetworkTypeUDP6, webrtc.NetworkTypeTCP4,
 +			})
++			// TCP4 would also make the agent dial the SFU's passive TCP candidates;
++			// only TURN/TCP is wanted here.
++			settingEngine.DisableActiveTCP(true)
  		})
  	}
  
